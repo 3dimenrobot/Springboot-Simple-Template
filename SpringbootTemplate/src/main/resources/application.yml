@@ -1,0 +1,31 @@
+#这些配置会被保留，如果和下面的重复则会被覆盖
+spring:
+  profiles:
+    active: dev
+  application:
+    name: spring yaml example
+
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://192.168.112.101:3306/example?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true
+    username: root
+    password: 123456
+
+---
+#当环境为dev时采用该配置
+spring:
+  profiles: dev
+server:
+  tomcat:
+    uri-encoding: utf-8
+  port: 9900
+---
+#当环境为prod时采用该配置
+spring:
+  profiles: prod
+server:
+  tomcat:
+    uri-encoding: utf-8
+  port: 9800
+
+
