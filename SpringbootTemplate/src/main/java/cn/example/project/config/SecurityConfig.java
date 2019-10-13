@@ -18,19 +18,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                "/swagger-resources/configuration/security",//安全选项
 //                "/swagger-ui.html");
 
-//    @Override
-//    public void configure(HttpSecurity http) throws Exception {
-//        // TODO Auto-generated method stub
-//        // 开放swagger 访问
-//        http.authorizeRequests()
-//                .antMatchers("/v2/api-docs", "/swagger-resources/configuration/ui", "/swagger-resources", "/swagger-resources/configuration/security", "/swagger-ui.html", "/webjars/**").permitAll()
-//                .and()
-//                .authorizeRequests()
-//                .anyRequest()
-//                .authenticated()
-//                .and()
-//                .csrf().disable();
-//    }
+    @Override
+    public void configure(HttpSecurity http) throws Exception {
+        // TODO Auto-generated method stub
+        // 开放swagger 访问
+        http.authorizeRequests()
+                .antMatchers("/v2/api-docs", "/swagger-resources/configuration/ui", "/swagger-resources", "/swagger-resources/configuration/security", "/swagger-ui.html", "/webjars/**").permitAll()
+                .and()
+                .authorizeRequests()
+                .anyRequest()
+                .authenticated()
+                .and()
+                .csrf().disable();
+    }
 
 
 

@@ -7,11 +7,13 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="SpringbootTemplate" />
+        <module name="Springboot-Example" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Springboot-Example" options="-parameters" />
       <module name="SpringbootTemplate" options="-parameters" />
     </option>
   </component>
