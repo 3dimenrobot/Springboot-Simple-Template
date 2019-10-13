@@ -18,6 +18,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                "/swagger-resources/configuration/security",//安全选项
 //                "/swagger-ui.html");
 
+
+    
     @Override
     public void configure(HttpSecurity http) throws Exception {
         // TODO Auto-generated method stub
