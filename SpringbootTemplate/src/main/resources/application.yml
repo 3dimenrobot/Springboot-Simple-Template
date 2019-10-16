@@ -11,6 +11,17 @@ spring:
     username: root
     password: 123456
 
+#配置自动建表：updata:没有表新建，有表更新操作,控制台显示建表语句
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+
+
+logging:
+  level:
+    root: debug
 ---
 #当环境为dev时采用该配置
 spring:
@@ -18,7 +29,7 @@ spring:
 server:
   tomcat:
     uri-encoding: utf-8
-  port: 9900
+  port: 9600
 ---
 #当环境为prod时采用该配置
 spring:
@@ -26,6 +37,6 @@ spring:
 server:
   tomcat:
     uri-encoding: utf-8
-  port: 9800
+  port: 9600
 
 
