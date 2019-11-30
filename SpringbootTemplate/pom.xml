@@ -107,7 +107,13 @@
             <version>4.11</version>
             <scope>test</scope>
         </dependency>
-
+        <!-- 用于测试模拟部分程序 -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.8.5</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <!-- Package as an executable jar -->

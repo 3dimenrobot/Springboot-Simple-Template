@@ -25,8 +25,7 @@ public class Role extends AbsAudit {
 
     @ApiModelProperty(value = "角色名", example = "admin")
     @ManyToMany
-    private List<Menu> menus = new ArrayList<>();
-
+    private List<Resource> resources = new ArrayList<>();
 
     @ApiModelProperty(value = "备注", example = "系统管理员管理系统资源")
     private String remark;
@@ -55,12 +54,12 @@ public class Role extends AbsAudit {
         this.name = name;
     }
 
-    public List<Menu> getMenus() {
-        return menus;
+    public List<Resource> getResources() {
+        return resources;
     }
 
-    public void setMenus(List<Menu> menus) {
-        this.menus = menus;
+    public void setResources(List<Resource> resources) {
+        this.resources = resources;
     }
 
     public String getRemark() {

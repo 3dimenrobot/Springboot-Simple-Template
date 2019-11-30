@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+
 @ApiModel(description = "用户")
 @Entity
 public class User extends AbsAudit {

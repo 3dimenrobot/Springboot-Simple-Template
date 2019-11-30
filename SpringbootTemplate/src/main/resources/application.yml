@@ -16,9 +16,11 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-
-
-
+    ##  预防报错： Invalid bean definition with name 'webSecurityExpressionHandler'
+    ##
+  main:
+    allow-bean-definition-overriding: true
+#debug
 logging:
   level:
     root: debug
