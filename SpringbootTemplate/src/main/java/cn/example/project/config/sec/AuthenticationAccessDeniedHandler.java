@@ -17,8 +17,8 @@ import java.io.PrintWriter;
 @Component
 public class AuthenticationAccessDeniedHandler implements AccessDeniedHandler {
     @Override
-    public void handle(HttpServletRequest httpServletRequest, HttpServletResponse resp,
+    public void handle(HttpServletRequest req, HttpServletResponse resp,
                        AccessDeniedException e) throws IOException {
-        PermissionUtil.handle(resp,new Message("error", "登录认证，请联系管理员!",null));
+        PermissionUtil.handle(req,resp,new Message("error", "登录认证，请联系管理员!",null));
     }
 }

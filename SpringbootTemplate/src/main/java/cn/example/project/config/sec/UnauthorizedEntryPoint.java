@@ -18,7 +18,7 @@ public class UnauthorizedEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e)
             throws IOException, ServletException {
-        PermissionUtil.handle(httpServletResponse,new Message("error","权限不足" ,e.getMessage()));
+        PermissionUtil.handle(httpServletRequest,httpServletResponse,new Message("error","权限不足" ,e.getMessage()));
     }
 
 //   response.sendError(

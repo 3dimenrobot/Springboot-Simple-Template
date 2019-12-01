@@ -99,3 +99,5 @@ Copyright (c) 2017-present PanJiaChen
 
 ## 开发添加
 https://blog.csdn.net/weiiscomeon/article/details/96695526
+
+## 在resource 中添加的资源才受到权限管理控制

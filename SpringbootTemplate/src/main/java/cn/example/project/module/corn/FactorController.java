@@ -19,6 +19,12 @@ public class FactorController {
     @Autowired
     private FactorRepo repo;
 
+    @GetMapping("/test")
+    @ResponseBody
+    public Message test() {
+        return new Message("success", "test message");
+    }
+
     @PostMapping("/")
     @ResponseBody
     public Message save(Factor item) {

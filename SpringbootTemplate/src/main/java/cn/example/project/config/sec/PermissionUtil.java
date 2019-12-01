@@ -54,20 +54,59 @@ public class PermissionUtil {
     }
 
     /**
+     * 手动为response添加允许跨域请求的响应头；也就是浏览器端可以接收本次请求结果，处理。
+     * @param resp
+     */
+    public static void corsConfig(HttpServletResponse resp){
+        resp.setHeader("Access-Control-Allow-Origin","*");
+        resp.setHeader("Access-Control-Allow-Credentials", "true");
+        resp.setHeader("Access-Control-Allow-Methods", "POST, GET, PATCH, DELETE, PUT");
+        resp.setHeader("Access-Control-Max-Age", "3600");
+        resp.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    }
+
+    /**
      * 通用的响应方法
      * @param resp
      * @param message
      * @throws IOException
      */
     public static void handle(HttpServletResponse resp, Message message) throws IOException {
-        resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+//        corsConfig(resp);
         resp.setContentType("application/json;charset=UTF-8");
         PrintWriter out = resp.getWriter();
 //        Message message = new Message("error", "权限不足，请联系管理员!");
         out.write(JSON.toJSONString(message));
-        out.flush();
-        out.close();
+//        out.flush();
+//        out.close();
     }
+
+    /**
+     * 通用的响应方法
+     * @param resp
+     * @param message
+     * @throws IOException
+     */
+    public static void handle(HttpServletRequest req,HttpServletResponse resp, Message message) throws IOException {
+        corsConfig(req,resp);
+        resp.setContentType("application/json;charset=UTF-8");
+        PrintWriter out = resp.getWriter();
+//        Message message = new Message("error", "权限不足，请联系管理员!");
+        out.write(JSON.toJSONString(message));
+//        out.flush();
+//        out.close();
+    }
+
+    private static void corsConfig(HttpServletRequest req, HttpServletResponse resp) {
+//        resp.setHeader("Access-Control-Allow-Origin","*");
+        resp.setHeader("Access-Control-Allow-Origin",req.getHeader("origin"));
+        resp.setHeader("Access-Control-Allow-Credentials", "true");
+        resp.setHeader("Access-Control-Allow-Methods", "POST, GET, PATCH, DELETE, PUT,OPTIONS");
+        resp.setHeader("Access-Control-Max-Age", "3600"); // 1小时
+//        resp.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        resp.setHeader("Access-Control-Allow-Headers", "Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild");
+    }
+
 
     public static SecurityUser getCurrentUser() {
         return (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

@@ -1,94 +1,123 @@
 package cn.example.project.config;
 
-import cn.example.project.config.security.*;
+import cn.example.project.config.sec.*;
+import cn.example.project.module.base.Message;
+import cn.example.project.module.rbac.Resource;
+import cn.example.project.module.rbac.ResourceDB;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
 
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     SecurityUserService securityUserService;
+//
     @Autowired
-    MyPasswordEncoder passwordEncoder;
+    DynamicallyUrlInterceptor interceptor;
+
     @Autowired
-    RestAuthAccessDeniedHandler restAuthAccessDeniedHandler;
-    // 覆盖认证方法
+    UnauthorizedEntryPoint unauthorizedEntryPoint;
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(securityUserService).passwordEncoder(passwordEncoder);
+        auth.userDetailsService(securityUserService).passwordEncoder(new BCryptPasswordEncoder());
     }
 
-
-    //allow Swagger URL to be accessed without authentication
-//        web.ignoring().antMatchers("/v2/api-docs",//swagger api json
-//                "/swagger-resources/configuration/ui",//用来获取支持的动作
-//                "/swagger-resources",//用来获取api-docs的URI
-//                "/swagger-resources/configuration/security",//安全选项
-//                "/swagger-ui.html");
-
-//  http.
-//          // ... here goes your custom security configuration
-//          authorizeRequests().
-//    antMatchers(AUTH_WHITELIST).permitAll().  // whitelist Swagger UI resources
-//    // ... here goes your custom security configuration
-//    antMatchers("/**").authenticated();  // require authentication for any endpoint that's not whitelisted
-
-//    @Override
-//    public void configure(HttpSecurity http) throws Exception {
-//        // TODO Auto-generated method stub
-//        // 开放swagger 访问
-//        http.authorizeRequests()
-//                .antMatchers("/v2/api-docs", "/swagger-resources/configuration/ui", "/swagger-resources",
-//                        "/swagger-resources/configuration/security", "/swagger-ui.html", "/webjars/**","/rbac/**").permitAll()
-////                .antMatchers("/**").authenticated() // 让所有url都可以访问，用于测试
-////                .and()
-////                .authorizeRequests()
-////                .anyRequest()
-////                .authenticated()
-//                .and()
-//                .csrf().disable();
-//    }
+    /**
+     * https://blog.csdn.net/sinat_33151213/article/details/89931819
+     * @param web
+     * @throws Exception
+     */
     @Override
-    public void configure(HttpSecurity http) throws Exception {
-        http.cors().and()//新加入
-                .csrf() //跨站
-                .disable() //关闭跨站检测
-                .authorizeRequests()//验证策略策略链
-                .antMatchers("/public/**").permitAll()//无需验证路径
-                .antMatchers("/login").permitAll()// 放行登录
-                .antMatchers(HttpMethod.GET, "/rbac/user/*").hasAuthority("query")//拥有权限才可访问
-                .antMatchers(HttpMethod.GET, "/rbac/menu/**").hasAnyAuthority("query","queryAll")// 拥有任一权限即可访问
-                //角色类似，hasRole(),hasAnyRole()
-                .anyRequest().authenticated()
-                .and()
-                .formLogin()
-                //未登录跳转页面,设置了authenticationentrypoint后无需设置未登录跳转页面;AuthenticationEntryPoint 用来解决匿名用户访问无权限资源时的异常
-//                .loginPage("/public/unlogin")
-                .loginProcessingUrl("/login") //处理表单中自定义的登录URL;用于指定前后端分离的时候调用后台登录接口的名称
-                //登录成功转发接口
-                .successForwardUrl("/account/loginSuccess")
-                .failureForwardUrl("/account/loginFailed")
-                //修改用户名的表单name,有需要的话可以改为id，默认为username
-                .usernameParameter("username")
-                .passwordParameter("password")//修改密码的表单name，默认为password
-                .and()
-                //配置没有权限的自定义处理类; AccessDeineHandler 用来解决认证过的用户访问无权限资源时的异常
-                .exceptionHandling().authenticationEntryPoint(new CustomLoginAuthEntryPoint()).accessDeniedHandler(restAuthAccessDeniedHandler)
-                .and()
-                .logout()// 自定义登出
-                 // 于指定前后端分离的时候调用后台注销接口的名称
-                .logoutUrl("/logout") // 自定义登出api，无需自己实现
-                .logoutSuccessUrl("account/logoutSuccess");
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring().antMatchers("/index.html", "/static/**", "/login_p", "/favicon.ico");
     }
 
 
 
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.authorizeRequests()
+                .antMatchers(HttpMethod.OPTIONS,"/**").permitAll()
+                .antMatchers("/index.html", "/static/**","/static/index.html", "/login_p", "/favicon.ico").permitAll()
+                //"/login"不进行权限验证
+                .anyRequest().authenticated()   //其他的需要登陆后才能访问
+             .and()
+                .formLogin()
+                //loginProcessingUrl用于指定前后端分离的时候调用后台登录接口的名称
+                .loginProcessingUrl("/user/login")
+                .usernameParameter("username").passwordParameter("password")
+                .successHandler(new AuthenticationSuccessHandler() { //配置登录成功的自定义处理类
+                    @Override
+                    public void onAuthenticationSuccess(HttpServletRequest req,
+                                                        HttpServletResponse resp,
+                                                        Authentication auth) throws IOException {
+                        Message message = new Message("success", "登录成功!", PermissionUtil.getCurrentUser());
+                        //提供给前端 设置cookie
+                        message.setToken(UUID.randomUUID().toString());
 
+                        PermissionUtil.handle(req,resp, message);
+                    }
+                }).failureHandler(new AuthenticationFailureHandler() {
+                    @Override
+                    public void onAuthenticationFailure(HttpServletRequest req,
+                                                        HttpServletResponse resp,
+                                                        AuthenticationException e) throws IOException {
+                        Message message = null;
+                        if (e instanceof BadCredentialsException ||
+                                e instanceof UsernameNotFoundException) {
+                            message = new Message("error", "账户名或者密码输入错误!", e.getMessage());
+                        } else {
+                            message = new Message("error", "登录失败!", e.getMessage());
+                        }
+                        PermissionUtil.handle(req,resp, message);
+                    }
+                })
+                .and()
+                    .logout().logoutUrl("/user/logout")//logoutUrl用于指定前后端分离的时候调用后台注销接口的名称
+                        .logoutSuccessHandler(new LogoutSuccessHandler() {
+                            @Override
+                            public void onLogoutSuccess(HttpServletRequest req, HttpServletResponse resp, Authentication authentication) throws IOException, ServletException {
+
+                                Message message = new Message("success", "注销成功!", null);
+                                PermissionUtil.handle(req,resp, message);
+                            }
+                    })
+                .and().exceptionHandling().authenticationEntryPoint(unauthorizedEntryPoint)// 配置没有权限的自定义处理类
+                .and()
+                 .cors().disable().csrf().disable(); // 取消跨站请求伪造防护
+
+        http.addFilterBefore(interceptor, FilterSecurityInterceptor.class);
+    }
 }
