@@ -1,12 +1,17 @@
 package cn.example.project.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.*;
+
+import java.util.List;
 
 /**
  * 配置允许跨域  localhost:9900/aa 登录 localhost:9900/bb 也认可登录
@@ -119,5 +124,15 @@ public class WebMvcConfg  implements  WebMvcConfigurer {
         FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
         bean.setOrder(0);
         return bean;
+    }
+
+    /** 启用 Pageable pageable  controller中接收参数
+     * IllegalStateException: No primary or default constructor domain.Pageable
+     * @param resolvers
+     */
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+            // 注册Spring data jpa pageable的参数分解器
+        resolvers.add(new PageableHandlerMethodArgumentResolver());
     }
 }

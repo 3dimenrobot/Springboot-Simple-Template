@@ -54,34 +54,27 @@ export const constantRoutes = [
   },
   {
     path: '/rbac',
-    component: () => import('@/views/rbac/user'),
+    component: Layout,
     redirect: '/rbac/user',
-    name: 'RBAC',
     meta: { title: '系统管理', icon: 'example' },
     children: [
       {
-        path: '/rbac/user',
-        name: 'RBAC_User',
+        path: '/user',
+        name: 'rbac_user',
         component: () => import('@/views/rbac/user'),
         meta: { title: '用户管理', icon: 'example' }
       },
       {
-        path: '/rbac/role',
-        name: 'RBAC_Role',
+        path: '/role',
+        name: 'rbac_role',
         component: () => import('@/views/table/index'),
         meta: { title: '角色管理', icon: 'example' }
       },
       {
-        path: '/rbac/menu',
-        name: 'RBAC_Menu',
+        path: '/resource',
+        name: 'rbac_resource',
         component: () => import('@/views/table/index'),
         meta: { title: '菜单管理', icon: 'example' }
-      },
-      {
-        path: '/rbac/permission',
-        name: 'RBAC_Permission',
-        component: () => import('@/views/table/index'),
-        meta: { title: '权限管理', icon: 'example' }
       }
     ]
   },

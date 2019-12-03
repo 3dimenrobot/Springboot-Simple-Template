@@ -4,10 +4,9 @@ import cn.example.project.module.base.Message;
 import cn.example.project.module.base.PageHelper;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
+import org.springframework.data.rest.webmvc.support.DefaultedPageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.bind.annotation.*;
@@ -36,12 +35,14 @@ public class UserController {
     @Autowired
     private UserRepo repo;
 
+//
+//
+
 
     @GetMapping("")
     @ResponseBody
-    public Message list(PageHelper<User> page) {
-        User entity = page.getEntity();
-        ExampleMatcher matcher = page.getEntityLikeMatcher();
+    public Message list(PageHelper page,User entity) {
+        ExampleMatcher matcher = PageHelper.getEntityLikeMatcher(entity);
         Pageable pagination = page.getPagination();
 
         Page<User> result = null;
@@ -52,6 +53,20 @@ public class UserController {
         }
         return new Message("success", result);
     }
+
+   /* @ResponseBody
+    public Message list(@PageableDefault(size = 10, direction = Sort.Direction.DESC, sort = "someField") Pageable pageable,User entity) {
+        ExampleMatcher matcher = PageHelper.getEntityLikeMatcher(entity);
+        Page<User> result = null;
+        if (matcher != null) {
+            result = repo.findAll(Example.of(entity, matcher), pageable);
+        } else {
+            result = repo.findAll(pageable);
+        }
+        return new Message("success", result);
+    }*/
+
+
 
 
     @PostMapping("")

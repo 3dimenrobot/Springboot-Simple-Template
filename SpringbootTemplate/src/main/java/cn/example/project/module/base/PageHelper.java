@@ -37,7 +37,7 @@ public class PageHelper<T extends Object> {
      *
      * @return
      */
-    public ExampleMatcher getEntityLikeMatcher() {
+    public  ExampleMatcher getEntityLikeMatcher() {
         if (entity == null) return null;
         JSONObject jprops = JSONObject.parseObject(JSONObject.toJSONString(entity));
         ExampleMatcher matcher = ExampleMatcher.matching();
@@ -48,6 +48,24 @@ public class PageHelper<T extends Object> {
         }
         return matcher;
     }
+
+    /**
+     * 根据对象的json字符串构造对象的查询比较器 以contains作为条件
+     *
+     * @return
+     */
+    public static ExampleMatcher getEntityLikeMatcher(Object entity) {
+        if (entity == null) return null;
+        JSONObject jprops = JSONObject.parseObject(JSONObject.toJSONString(entity));
+        ExampleMatcher matcher = ExampleMatcher.matching();
+        for (String prop : jprops.keySet()) {
+            if (!StringUtils.isEmpty(prop)) {
+                matcher = matcher.withMatcher(prop, ExampleMatcher.GenericPropertyMatchers.contains());
+            }
+        }
+        return matcher;
+    }
+
 
     public T getEntity() {
         return entity;
