@@ -16,8 +16,9 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+    ##  预防关联查询 报错 user role JPA中的failed to lazily initialize a collection of role:xxxx no session or session was closed异常分析与解决
+    open-in-view: true
     ##  预防报错： Invalid bean definition with name 'webSecurityExpressionHandler'
-    ##
   main:
     allow-bean-definition-overriding: true
 #debug

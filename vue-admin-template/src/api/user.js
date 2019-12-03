@@ -20,6 +20,14 @@ export function getInfo(token) {
   })
 }
 
+export function getList(params) {
+  return request({
+    url: '/rbac/user',
+    method: 'get',
+    params: params
+  })
+}
+
 export function logout() {
   return request({
     url: '/user/logout',

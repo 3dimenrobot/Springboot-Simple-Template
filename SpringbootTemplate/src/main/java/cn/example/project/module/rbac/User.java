@@ -32,7 +32,7 @@ public class User extends AbsAudit {
     private boolean enabled;
 
     @ApiModelProperty(value = "角色集合", example = "[admin,predictor]")
-    @ManyToMany
+    @ManyToMany(fetch=FetchType.EAGER)
     private List<Role> roles = new ArrayList<>();
 
     @ApiModelProperty(value = "备注", example = "系统管理员管理系统资源")

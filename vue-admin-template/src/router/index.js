@@ -54,7 +54,7 @@ export const constantRoutes = [
   },
   {
     path: '/rbac',
-    component: Layout,
+    component: () => import('@/views/rbac/user'),
     redirect: '/rbac/user',
     name: 'RBAC',
     meta: { title: '系统管理', icon: 'example' },
@@ -62,7 +62,7 @@ export const constantRoutes = [
       {
         path: '/rbac/user',
         name: 'RBAC_User',
-        component: () => import('@/views/table/index'),
+        component: () => import('@/views/rbac/user'),
         meta: { title: '用户管理', icon: 'example' }
       },
       {
