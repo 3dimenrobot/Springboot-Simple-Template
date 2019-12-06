@@ -24,7 +24,7 @@ public class Role extends AbsAudit {
     private String name;
 
     @ApiModelProperty(value = "角色名", example = "admin")
-    @ManyToMany
+    @ManyToMany(fetch=FetchType.EAGER)
     private List<Resource> resources = new ArrayList<>();
 
     @ApiModelProperty(value = "备注", example = "系统管理员管理系统资源")

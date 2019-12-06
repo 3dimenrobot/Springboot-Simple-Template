@@ -38,7 +38,7 @@
             <p>确定删除本条数据吗？</p>
             <div style="text-align: right; margin: 0">
               <el-button size="mini" type="text" @click="$refs[scope.row.id].doClose()">取消</el-button>
-              <el-button  type="primary" size="mini" @click="delete(scope.row.id)">确定</el-button>
+              <el-button  type="primary" size="mini" @click="doDelete(scope.row.id)">确定</el-button>
             </div>
             <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini"/>
           </el-popover>
@@ -67,10 +67,9 @@
           </el-form-item>
 
           <el-form-item style="margin-bottom: 0px;" label="角色">
-            <el-select v-model="roleIds"  style="width:420px;" multiple placeholder="请选择">
+            <el-select v-model="roleIds"  style="width:420px;" multiple placeholder="请选择" >
               <el-option
-                v-for="(item, index) in roles"
-                :disabled="level !== 1 && item.level <= level"
+                v-for="(item, index) in roleList"
                 :key="item.name + index"
                 :label="item.name"
                 :value="item.id"/>
@@ -90,7 +89,8 @@
 </template>
 
 <script>
-  import {getList} from '@/api/user'
+  import {readList,create,update,remove} from '@/api/user'
+  import {readList as getRoles } from '@/api/role'
 
   import Pager from '@/api/Pager'
 
@@ -108,7 +108,11 @@
           {label: '密码', prop: 'password'},
           {
             label: '角色', prop: 'roles', formatter: function (row, column, value) {
-              return "";
+              let roles = [];
+              value.forEach(function (role, index) {
+                roles.push(role.name)
+              })
+              return JSON.stringify(roles);
             }
           },
           {label: '创建时间', prop: 'createTime'},
@@ -116,14 +120,17 @@
         ],
 
         dialog:false,
+        isAdd:true,
         form:{
           cnname:'',
           username:'',
           password:'',
           roles:[],
-          roleIds:'',
           remark:''
         },
+        roleIds:[],
+        roleList:[],
+
         rules:{
           username: [
             { required: true, message: '请输入用户名', trigger: 'blur' },
@@ -133,7 +140,8 @@
       }
     },
     mounted() {
-      this.init()
+      this.init();
+      this.loadRoleList();
     },
     methods: {
       toQuery(){
@@ -142,30 +150,100 @@
       init() {
         this.loading = true
         this.params = {page: this.page, size: this.size, sort: 'id','username':this.entity.username}
-        getList(this.params).then(response => {
+        readList(this.params).then(response => {
           let data = response.data.data;
           this.total = data.totalElements
           this.dataList = data.content
           this.loading = false
         })
       },
+      cancel() {
+        this.resetForm()
+      },
+      resetForm() {
+        this.dialog = false
+        for(let key in this.form){
+          this.form[key]  = '';
+        }
+        this.form.roles = [];
+        this.roleIds = [];
+      },
+      doSubmit() {
+        this.$refs['form'].validate((valid) => {
+          if (valid) {
+            this.loading = true
+            this.form.roles = []
+            const _this = this
+            this.roleIds.forEach(function (data, index) {
+              const role = {id: data}
+              _this.form.roles.push(role)
+            })
+            if (this.isAdd) {
+              this.doAdd()
+            } else this.doEdit()
+          } else {
+            return false
+          }
+        })
+      },
+      loadRoleList(){
+        console.log( this.roleList )
+        this.params = {page: 0, size: 20}
+        getRoles(this.params).then(response => {
+          let data = response.data.data;
+          this.roleList = data.content
+          console.log( this.roleList )
+        })
+      },
       add(){
         this.isAdd = true
-        // this.$refs.form.getDepts()
-        // this.$refs.form.getRoles()
-        // this.$refs.form.getRoleLevel()
         this.dialog = true
       },
-      edit(){
+      edit(row){
         this.isAdd = false
-        // this.$refs.form.getDepts()
-        // this.$refs.form.getRoles()
-        // this.$refs.form.getRoleLevel()
+        this.form = Object.assign({},row);
+        const _this = this
+        this.form.roles.forEach(function (role, index) {
+          _this.roleIds.push(role.id)
+        })
         this.dialog = true
       },
-      delete(){
-
-      }
+      doDelete(id){
+        remove({id:id}).then(response => {
+          this.$notify({
+            title: '删除成功',
+            type: 'success',
+            duration: 2500
+          })
+          this.loading = true
+          this.toQuery();
+          this.resetForm();
+        })
+      },
+      doAdd(){
+        create(this.form).then(response => {
+          this.$notify({
+            title: '添加成功',
+            type: 'success',
+            duration: 2500
+          })
+          this.loading = true
+          this.toQuery();
+          this.resetForm();
+        })
+      },
+      doEdit(){
+        update(this.form).then(response => {
+          this.$notify({
+            title: '修改成功',
+            type: 'success',
+            duration: 2500
+          })
+          this.loading = true
+          this.toQuery();
+          this.resetForm();
+        })
+      },
     }
   }
 </script>

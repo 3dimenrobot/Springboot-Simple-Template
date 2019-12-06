@@ -8,6 +8,8 @@ import org.springframework.data.domain.*;
 import org.springframework.data.rest.webmvc.support.DefaultedPageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,9 +37,16 @@ public class UserController {
     @Autowired
     private UserRepo repo;
 
-//
-//
-
+    // 加密
+    public String encode(CharSequence rawPassword) {
+        // 虽然每次生成的编码不一致，但是 BCrypt.checkpw("123456","$2a$10$glDmERY6TuLaoFQwQLBKxO4aZ4/ZF4mkka9w.eyMoumhK4QR6GLQm") 依然为true
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        return encoder.encode(rawPassword.toString().trim());
+    }
+    // 判断密码是否匹配
+    public boolean matches(CharSequence rawPassword, String encodedPassword) {
+        return BCrypt.checkpw(rawPassword.toString().trim(),encodedPassword);
+    }
 
     @GetMapping("")
     @ResponseBody
@@ -71,14 +80,21 @@ public class UserController {
 
     @PostMapping("")
     @ResponseBody
-    public Message create(User entity) {
+    public Message create(@RequestBody  User entity) {
+        // 密码加密
+        entity.setPassword(encode(entity.getPassword()));
         repo.save(entity);
         return new Message("success", entity);
     }
 
     @PutMapping("/{id}")
     @ResponseBody
-    public Message update(@PathVariable("id") Integer id, User entity) {
+    public Message update(@PathVariable("id") Integer id, @RequestBody User entity) {
+        // 密码与数据库比较，如果相同，则不需要加密，如果不同则需要加密
+        User one = repo.getOne(id);
+        if(!one.getPassword().equals(entity.getPassword())){
+            entity.setPassword(encode(entity.getPassword()));
+        }
         repo.save(entity);
         return new Message("success", entity);
     }

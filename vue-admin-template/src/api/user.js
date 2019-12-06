@@ -20,7 +20,15 @@ export function getInfo(token) {
   })
 }
 
-export function getList(params) {
+
+export function logout() {
+  return request({
+    url: '/user/logout',
+    method: 'post'
+  })
+}
+
+export function readList(params) {
   return request({
     url: '/rbac/user',
     method: 'get',
@@ -28,9 +36,26 @@ export function getList(params) {
   })
 }
 
-export function logout() {
+// crud
+export function create(data) {
   return request({
-    url: '/user/logout',
-    method: 'post'
+    url: '/rbac/user',
+    method: 'post',
+    data: data
+  })
+}
+
+export function update(data) {
+  return request({
+    url: '/rbac/user/'+data.id,
+    method: 'put',
+    data: data
+  })
+}
+
+export function remove(data) {
+  return request({
+    url: '/rbac/user/'+data.id,
+    method: 'delete'
   })
 }

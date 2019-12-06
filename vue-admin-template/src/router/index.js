@@ -59,19 +59,19 @@ export const constantRoutes = [
     meta: { title: '系统管理', icon: 'example' },
     children: [
       {
-        path: '/user',
+        path: '/rbac/user',
         name: 'rbac_user',
         component: () => import('@/views/rbac/user'),
         meta: { title: '用户管理', icon: 'example' }
       },
       {
-        path: '/role',
+        path: '/rbac/role',
         name: 'rbac_role',
         component: () => import('@/views/table/index'),
         meta: { title: '角色管理', icon: 'example' }
       },
       {
-        path: '/resource',
+        path: '/rbac/resource',
         name: 'rbac_resource',
         component: () => import('@/views/table/index'),
         meta: { title: '菜单管理', icon: 'example' }

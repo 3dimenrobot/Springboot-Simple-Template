@@ -28,9 +28,8 @@ public class RoleController {
 
     @GetMapping
     @ResponseBody
-    public Message getPagedList(PageHelper<Role> page) {
-        Role entity = page.getEntity();
-        ExampleMatcher matcher = page.getEntityLikeMatcher();
+    public Message getPagedList(PageHelper page,Role entity) {
+        ExampleMatcher matcher = PageHelper.getEntityLikeMatcher(entity);
         Pageable pagination = page.getPagination();
 
         Page<Role> result = null;
