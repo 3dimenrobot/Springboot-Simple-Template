@@ -263,6 +263,9 @@
       },
       doAdd(){
         this.form.parent.id = this.form.pidArr.pop();
+        if(!this.form.children){
+          this.form.children = null;
+        }
         create(this.form).then(response => {
           this.$notify({
             title: '添加成功',
@@ -276,6 +279,9 @@
       },
       doEdit(){
         this.form.parent.id = this.form.pidArr.pop();
+        if(!this.form.children){
+          this.form.children = null;
+        }
         update(this.form).then(response => {
           this.$notify({
             title: '修改成功',

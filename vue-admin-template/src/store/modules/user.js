@@ -41,17 +41,17 @@ const actions = {
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => {
-        debugger
         const { data } = response.data
        console.log(data);
         if (!data) {
           reject('Verification failed, please Login again.')
         }
         // const { name, avatar } = data
-        let avatar = ""  // import('/src/icons/user.gif')
+        let avatar = require('../../icons/psb.jpg')
 
         commit('SET_NAME', data.cnname)
-        // commit('SET_AVATAR', avatar)
+
+        commit('SET_AVATAR', avatar)
 
         // 动态路由，拉取菜单
         createMenus(data.menuTree)

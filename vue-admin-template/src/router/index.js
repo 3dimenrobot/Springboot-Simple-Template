@@ -181,12 +181,16 @@ export function resetRouter() {
 
 
 export const loadView = (url) => { // 路由懒加载
-  return () => import(`@/views${url}.vue`);
+  // 为corn 玉米产量特殊设置的路由文件 // 玉米的菜单url必须为/corn-前缀:  如： /corn-huabei/beijing 格式
+  if(url.startsWith("/corn-")){
+    return () => import(`@/views/corn/common.vue`);
+  }else{
+    return () => import(`@/views${url}.vue`);
+  }
 }
 
 // 添加权限
 export function createMenus(data) {
-  debugger
   let trees = data[0].children;  // 获取/ 下的所有子元素
   function loopChildren(children){
     if(children == '' || children.length == 0) return ;
@@ -215,8 +219,6 @@ export function createMenus(data) {
       }
     }
   }
-
-  debugger
   loopChildren(trees)
   console.log('trees',trees)
   router.options.routes = trees.concat(constantRoutes);
