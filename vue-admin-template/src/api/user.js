@@ -12,15 +12,6 @@ export function login(data) {
   })
 }
 
-export function getInfo(token) {
-  return request({
-    url: '/user/info',
-    method: 'get',
-    params: { token }
-  })
-}
-
-
 export function logout() {
   return request({
     url: '/user/logout',
@@ -35,6 +26,17 @@ export function readList(params) {
     params: params
   })
 }
+
+// 查询权限和用户信息
+export function getInfo(token) {
+  return request({
+    url: '/rbac/user/info',
+    method: 'get',
+    params: { token }
+  })
+}
+
+
 
 // crud
 export function create(data) {

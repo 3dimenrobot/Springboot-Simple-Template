@@ -1,6 +1,6 @@
-import { login, logout, getInfo } from '@/api/user'
+import { login, logout, getInfo, } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
-import { resetRouter } from '@/router'
+import { resetRouter,createMenus } from '@/router'
 
 const state = {
   token: getToken(),
@@ -41,16 +41,21 @@ const actions = {
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => {
-        const { data } = response
-
+        debugger
+        const { data } = response.data
+       console.log(data);
         if (!data) {
           reject('Verification failed, please Login again.')
         }
+        // const { name, avatar } = data
+        let avatar = ""  // import('/src/icons/user.gif')
 
-        const { name, avatar } = data
+        commit('SET_NAME', data.cnname)
+        // commit('SET_AVATAR', avatar)
 
-        commit('SET_NAME', name)
-        commit('SET_AVATAR', avatar)
+        // 动态路由，拉取菜单
+        createMenus(data.menuTree)
+        // next
         resolve(data)
       }).catch(error => {
         reject(error)
@@ -63,6 +68,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       logout(state.token).then(() => {
         commit('SET_TOKEN', '')
+        commit('SET_NAME', '')
         removeToken()
         resetRouter()
         resolve()

@@ -41,7 +41,7 @@ export const constantRoutes = [
     component: () => import('@/views/404'),
     hidden: true
   },
-  {
+  {  //   matched = [{ path: '/dashboard', meta: { title: 'Dashboard' }}].concat(matched)
     path: '/',
     component: Layout,
     redirect: '/dashboard',
@@ -49,35 +49,35 @@ export const constantRoutes = [
       path: 'dashboard',
       name: 'Dashboard',
       component: () => import('@/views/dashboard/index'),
-      meta: { title: 'Dashboard', icon: 'dashboard' }
+      meta: { title: '首页O', icon: 'dashboard' }
     }]
   },
-  {
-    path: '/rbac',
-    component: Layout,
-    redirect: '/rbac/user',
-    meta: { title: '系统管理', icon: 'example' },
-    children: [
-      {
-        path: '/rbac/user',
-        name: 'rbac_user',
-        component: () => import('@/views/rbac/user'),
-        meta: { title: '用户管理', icon: 'example' }
-      },
-      {
-        path: '/rbac/role',
-        name: 'rbac_role',
-        component: () => import('@/views/table/index'),
-        meta: { title: '角色管理', icon: 'example' }
-      },
-      {
-        path: '/rbac/resource',
-        name: 'rbac_resource',
-        component: () => import('@/views/table/index'),
-        meta: { title: '菜单管理', icon: 'example' }
-      }
-    ]
-  },
+  // {
+  //   path: '/rbac',
+  //   component: Layout,
+  //   redirect: '/rbac/user',
+  //   meta: { title: '系统管理', icon: 'example' },
+  //   children: [
+  //     {
+  //       path: '/rbac/user',
+  //       name: 'rbac_user',
+  //       component: () => import('@/views/rbac/user'),
+  //       meta: { title: '用户管理', icon: 'example' }
+  //     },
+  //     {
+  //       path: '/rbac/role',
+  //       name: 'rbac_role',
+  //       component: () => import('@/views/rbac/role'),
+  //       meta: { title: '角色管理', icon: 'example' }
+  //     },
+  //     {
+  //       path: '/rbac/resource',
+  //       name: 'rbac_resource',
+  //       component: () => import('@/views/rbac/resource'),
+  //       meta: { title: '资源管理', icon: 'example' }
+  //     }
+  //   ]
+  // },
   {
     path: '/form',
     component: Layout,
@@ -170,6 +170,7 @@ const createRouter = () => new Router({
   routes: constantRoutes
 })
 
+
 const router = createRouter()
 
 // Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
@@ -177,5 +178,50 @@ export function resetRouter() {
   const newRouter = createRouter()
   router.matcher = newRouter.matcher // reset router
 }
+
+
+export const loadView = (url) => { // 路由懒加载
+  return () => import(`@/views${url}.vue`);
+}
+
+// 添加权限
+export function createMenus(data) {
+  debugger
+  let trees = data[0].children;  // 获取/ 下的所有子元素
+  function loopChildren(children){
+    if(children == '' || children.length == 0) return ;
+    for(let i in children){
+      let item = children[i];
+      // const _import = require('./router/_import_' + process.env.NODE_ENV)
+      // resolve => require(['../pages/home.vue'], resolve),
+      if(item.level === 'Dir_Module'){
+        children[i] = {
+          path: item.url, name:item.url,
+          component: Layout,
+          meta: { title: item.name, icon: 'example' }
+        };
+        let sub = item.children;
+        loopChildren(sub);
+        if(sub){
+          children[i].children = sub;
+        }
+      }else{ // Menu_Entity
+        console.log('@/views' + item.url + '.vue')
+        children[i] = {
+          path: item.url, name:item.url,
+          component: loadView(item.url),
+          meta: { title: item.name, icon: 'example' }
+        };
+      }
+    }
+  }
+
+  debugger
+  loopChildren(trees)
+  console.log('trees',trees)
+  router.options.routes = trees.concat(constantRoutes);
+  router.addRoutes(trees) // 动态添加可访问路由表
+}
+
 
 export default router

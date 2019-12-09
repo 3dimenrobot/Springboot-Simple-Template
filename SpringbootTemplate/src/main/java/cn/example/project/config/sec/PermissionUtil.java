@@ -111,16 +111,5 @@ public class PermissionUtil {
     public static SecurityUser getCurrentUser() {
         return (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
-
-    public static List<Resource> createWhiteList(String[] whiteList) {
-        List<Resource> list= new ArrayList<>();
-        int count = 1;
-        for (String s : whiteList) {
-            Resource rw00 = new Resource(10000+count,"", ResourceLevel.Page_Resource, s , s ,null,"GET","read");
-            list.add(rw00);
-            count ++;
-        }
-        return list;
-    }
 }
 

@@ -10,7 +10,5 @@ public enum ResourceLevel {
     // "菜单", "实体"
      Menu_Entity,
     // "按钮", "方法"
-     Button_Method,
-    // 页面
-     Page_Resource;
+     Button_Method
 }

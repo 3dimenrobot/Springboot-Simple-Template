@@ -17,19 +17,19 @@ public class PageHelper<T extends Object> {
     @ApiModelProperty(value = "参数实体")
     private T entity;
 
-    private Integer pageNo = 0;
+    private Integer page = 0;
 
-    private Integer pageSize = 10;
+    private Integer size = 10;
 
     // "createTime desc"
     private String direction = "desc";
-    private String orders = "createTime"; // name,createTime
+    private String sort = "createTime"; // name,createTime
 
     public Pageable getPagination() {
-        orders = !StringUtils.isEmpty(orders) ? orders : "createTime";
-        String[] order_props = orders.split(",");
-        pageNo = pageNo <0 ? 0: pageNo;
-        return PageRequest.of(pageNo, pageSize, new Sort(Sort.Direction.fromString(direction), Arrays.asList(order_props)));
+        sort = !StringUtils.isEmpty(sort) ? sort : "createTime";
+        String[] order_props = sort.split(",");
+        page = page <0 ? 0: page;
+        return PageRequest.of(page, size, new Sort(Sort.Direction.fromString(direction), Arrays.asList(order_props)));
     }
 
     /**
@@ -75,20 +75,20 @@ public class PageHelper<T extends Object> {
         this.entity = entity;
     }
 
-    public Integer getPageNo() {
-        return pageNo;
+    public Integer getPage() {
+        return page;
     }
 
-    public void setPageNo(Integer pageNo) {
-        this.pageNo = pageNo;
+    public void setPage(Integer page) {
+        this.page = page;
     }
 
-    public Integer getPageSize() {
-        return pageSize;
+    public Integer getSize() {
+        return size;
     }
 
-    public void setPageSize(Integer pageSize) {
-        this.pageSize = pageSize;
+    public void setSize(Integer size) {
+        this.size = size;
     }
 
     public String getDirection() {
@@ -99,11 +99,11 @@ public class PageHelper<T extends Object> {
         this.direction = direction;
     }
 
-    public String getOrders() {
-        return orders;
+    public String getSort() {
+        return sort;
     }
 
-    public void setOrders(String orders) {
-        this.orders = orders;
+    public void setSort(String sort) {
+        this.sort = sort;
     }
 }

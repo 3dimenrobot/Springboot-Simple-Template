@@ -1,6 +1,7 @@
 package cn.example.project.module.rbac;
 
 import cn.example.project.module.base.AbsAudit;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -47,11 +48,11 @@ public class Resource extends AbsAudit {
     private String crudName;
 
     @ApiModelProperty(value = "父级菜单id", example = "rbac")
-    @OneToOne
+    @OneToOne(fetch=FetchType.LAZY)
     private Resource parent;
 
     @ApiModelProperty(value = "子菜单集合", example = "rbac")
-    @OneToMany
+    @OneToMany(fetch=FetchType.LAZY)
     private List<Resource> children = new ArrayList<>();
 
     @ApiModelProperty(value = "备注", example = "菜单功能描述")
@@ -60,6 +61,11 @@ public class Resource extends AbsAudit {
 
     public Resource() {
     }
+
+    public Resource(Integer id) {
+        this.id = id;
+    }
+
 
     public Resource(Integer id,String name, ResourceLevel level, String atomUrl, String url, Resource parent) {
         this.id = id;

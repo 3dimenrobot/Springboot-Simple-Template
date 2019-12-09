@@ -1,6 +1,7 @@
 package cn.example.project.module.rbac;
 
 import cn.example.project.module.base.AbsAudit;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -23,7 +24,7 @@ public class Role extends AbsAudit {
     @ApiModelProperty(value = "角色名", example = "admin")
     private String name;
 
-    @ApiModelProperty(value = "角色名", example = "admin")
+    @ApiModelProperty(value = "资源名", example = "资源集合")
     @ManyToMany(fetch=FetchType.EAGER)
     private List<Resource> resources = new ArrayList<>();
 

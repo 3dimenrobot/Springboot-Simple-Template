@@ -2,14 +2,15 @@ package cn.example.project.module.rbac;
 
 import cn.example.project.module.base.Message;
 import cn.example.project.module.base.PageHelper;
+import cn.hutool.log.StaticLog;
+import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Api(tags = "102 菜单")
@@ -19,18 +20,27 @@ public class ResourceController {
     @Autowired
     private ResourceRepo repo;
 
-    @PostMapping("/")
+    @Autowired
+    private ResourceService service;
+
+    @PostMapping("")
     @ResponseBody
-    public Message save(Resource entity) {
+    public Message create(@RequestBody Resource entity) {
         repo.save(entity);
         return new Message("success", entity);
     }
 
-    @GetMapping("/")
+    @PutMapping("/{id}")
     @ResponseBody
-    public Message getPagedList(PageHelper<Resource> page) {
-        Resource entity = page.getEntity();
-        ExampleMatcher matcher = page.getEntityLikeMatcher();
+    public Message update(@PathVariable("id") Integer id, @RequestBody Resource entity) {
+        repo.save(entity);
+        return new Message("success", entity);
+    }
+
+    @GetMapping
+    @ResponseBody
+    public Message getPagedList(PageHelper page,Resource entity) {
+        ExampleMatcher matcher = PageHelper.getEntityLikeMatcher(entity);
         Pageable pagination = page.getPagination();
 
         Page<Resource> result = null;
@@ -39,8 +49,18 @@ public class ResourceController {
         } else {
             result = repo.findAll(pagination);
         }
+        List<Resource> content = result.getContent();
+        service.emptyJoinRes(content);
+        content = service.tree(content);
+        StaticLog.info(JSON.toJSONString(content,true));
+        // 重新将content 生成tree
+        result = new PageImpl(content,pagination,result.getTotalElements());
         return new Message("success", result);
     }
+
+
+
+
 
     @DeleteMapping("/{id}")
     @ResponseBody

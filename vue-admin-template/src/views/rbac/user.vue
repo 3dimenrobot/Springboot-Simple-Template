@@ -149,7 +149,7 @@
       },
       init() {
         this.loading = true
-        this.params = {page: this.page, size: this.size, sort: 'id','username':this.entity.username}
+        this.params = {page: this.page, size: this.size, sort: 'createTime','username':this.entity.username}
         readList(this.params).then(response => {
           let data = response.data.data;
           this.total = data.totalElements

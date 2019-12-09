@@ -31,9 +31,10 @@ router.beforeEach(async(to, from, next) => {
       } else {
         try {
           // get user info
-          // TODO  await store.dispatch('user/getInfo')
-
-          next()
+          // 获取权限信息
+          store.dispatch('user/getInfo').then(res => {
+            next()
+          })
         } catch (error) {
           // remove token and go to login page to re-login
           await store.dispatch('user/resetToken')
