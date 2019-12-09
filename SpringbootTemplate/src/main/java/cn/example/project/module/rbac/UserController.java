@@ -1,5 +1,6 @@
 package cn.example.project.module.rbac;
 
+import cn.example.project.config.sec.SecurityUser;
 import cn.example.project.module.base.Message;
 import cn.example.project.module.base.PageHelper;
 import io.swagger.annotations.Api;
@@ -8,12 +9,14 @@ import org.springframework.data.domain.*;
 import org.springframework.data.rest.webmvc.support.DefaultedPageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.*;
 
 /**
  * https://stackoverflow.com/questions/671118/what-exactly-is-restful-programming
@@ -36,6 +39,9 @@ public class UserController {
 
     @Autowired
     private UserRepo repo;
+
+    @Autowired
+    ResourceService resourceService;
 
     // 加密
     public String encode(CharSequence rawPassword) {
@@ -60,6 +66,9 @@ public class UserController {
         } else {
             result = repo.findAll(pagination);
         }
+
+        resourceService.emptyJoinUsers(result.getContent());
+
         return new Message("success", result);
     }
 
@@ -84,6 +93,7 @@ public class UserController {
         // 密码加密
         entity.setPassword(encode(entity.getPassword()));
         repo.save(entity);
+        entity.setRoles(null);// 不关联
         return new Message("success", entity);
     }
 
@@ -91,11 +101,14 @@ public class UserController {
     @ResponseBody
     public Message update(@PathVariable("id") Integer id, @RequestBody User entity) {
         // 密码与数据库比较，如果相同，则不需要加密，如果不同则需要加密
-        User one = repo.getOne(id);
+        User one = repo.findById(id).get();
         if(!one.getPassword().equals(entity.getPassword())){
             entity.setPassword(encode(entity.getPassword()));
         }
         repo.save(entity);
+
+        entity.setRoles(null);// 不关联
+
         return new Message("success", entity);
     }
 
@@ -104,6 +117,30 @@ public class UserController {
     public Message read(@PathVariable("id") Integer id) {
         return new Message("success", repo.getOne(id));
     }
+
+
+    /**
+     * 获取用户和权限相关资源
+     * @return
+     */
+    @GetMapping("/info")
+    @ResponseBody
+    public Message info() {
+        SecurityUser principal = (SecurityUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username = principal.getUsername();
+
+        User user = repo.findUserByUsername(username);
+
+        // 得到资源树 第一级别是系统资源/
+        List<Resource> menuTree = resourceService.createMenuTree(user.getRoles());
+
+        Map<String,Object> data = new HashMap<>();
+        data.put("cnname",user.getCnname());
+        data.put("menuTree",menuTree);
+        return new Message("success",data);
+    }
+
+
 
     @DeleteMapping("/{id}")
     @ResponseBody

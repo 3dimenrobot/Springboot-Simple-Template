@@ -101,3 +101,8 @@ Copyright (c) 2017-present PanJiaChen
 https://blog.csdn.net/weiiscomeon/article/details/96695526
 
 ## 在resource 中添加的资源才受到权限管理控制
+
+## Exception: TypeError: 'caller', 'callee', and 'arguments' properties may not be accessed on strict m
+cnpm install babel-plugin-transform-remove-strict-mode
+## vue-element-admin 项目安装node-sass失败 解决方法
+https://blog.csdn.net/hanguofei/article/details/100852239

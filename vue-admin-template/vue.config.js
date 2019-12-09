@@ -40,6 +40,8 @@ module.exports = {
       '/': {
         target: 'http://localhost:9600',
         changeOrigin: true,
+        ws: false,
+        secure: false,
         pathRewrite: {
           '^/': ''
         }
