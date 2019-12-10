@@ -13,24 +13,23 @@ import org.springframework.web.bind.annotation.*;
 
 @Api(tags = "当前现状")
 @RestController
-@RequestMapping("/presentSituation")
+@RequestMapping("/corn/presentSituation")
 public class PresentSituationController {
 
     @Autowired
     private PresentSituationRepo repo;
 
-    @PostMapping("/")
+    @PostMapping("")
     @ResponseBody
-    public  Message save(PresentSituation item) {
+    public Message save(@RequestBody PresentSituation item) {
         repo.save(item);
         return new Message("success", item);
     }
 
     @GetMapping
     @ResponseBody
-    public Message getPagedList(PageHelper<PresentSituation> page) {
-        PresentSituation entity = page.getEntity();
-        ExampleMatcher matcher = page.getEntityLikeMatcher();
+    public Message getPagedList(PageHelper page, PresentSituation entity) {
+        ExampleMatcher matcher = PageHelper.getEntityLikeMatcher(entity);
         Pageable pagination = page.getPagination();
 
         Page<PresentSituation> result = null;
@@ -39,6 +38,7 @@ public class PresentSituationController {
         } else {
             result = repo.findAll(pagination);
         }
+        // 重新将content 生成tree
         return new Message("success", result);
     }
 

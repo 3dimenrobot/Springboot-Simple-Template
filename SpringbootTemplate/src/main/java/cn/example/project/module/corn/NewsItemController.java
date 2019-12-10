@@ -13,24 +13,24 @@ import org.springframework.web.bind.annotation.*;
 
 @Api(tags = "新闻")
 @RestController
-@RequestMapping("/newsItem")
+@RequestMapping("/corn/newsItem")
 public class NewsItemController {
 
     @Autowired
     private NewsItemRepo repo;
 
-    @PostMapping("/")
+
+    @PostMapping("")
     @ResponseBody
-    public Message save(NewsItem item) {
+    public Message save(@RequestBody NewsItem item) {
         repo.save(item);
         return new Message("success", item);
     }
 
     @GetMapping
     @ResponseBody
-    public Message getPagedList(PageHelper<NewsItem> page) {
-        NewsItem entity = page.getEntity();
-        ExampleMatcher matcher = page.getEntityLikeMatcher();
+    public Message getPagedList(PageHelper page, NewsItem entity) {
+        ExampleMatcher matcher = PageHelper.getEntityLikeMatcher(entity);
         Pageable pagination = page.getPagination();
 
         Page<NewsItem> result = null;
@@ -39,6 +39,7 @@ public class NewsItemController {
         } else {
             result = repo.findAll(pagination);
         }
+        // 重新将content 生成tree
         return new Message("success", result);
     }
 
