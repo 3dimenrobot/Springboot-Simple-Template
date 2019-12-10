@@ -54,30 +54,17 @@
       @size-change="sizeChange"
       @current-change="pageChange"/>
 
-    <el-dialog :visible.sync="dialog" :close-on-click-modal="false" :before-close="cancel" :title="isAdd ? '新增用户' : '编辑用户'" append-to-body width="570px">
+    <el-dialog :visible.sync="dialog" :close-on-click-modal="false" :before-close="cancel" :title="isAdd ? '新增影响因子' : '编辑影响因子'" append-to-body width="570px">
         <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="66px">
-          <el-form-item label="中文名" prop="cnname">
-            <el-input v-model="form.cnname"  style="width:420px;"/>
+          <el-form-item label="温度" prop="temperature">
+            <el-input v-model="form.temperature"  style="width:420px;" @input="change($event)"/>
           </el-form-item>
-          <el-form-item label="用户名" prop="username">
-            <el-input v-model="form.username"/>
-          </el-form-item>
-          <el-form-item label="密码" prop="password">
-            <el-input v-model="form.password"/>
-          </el-form-item>
-
-          <el-form-item style="margin-bottom: 0px;" label="角色">
-            <el-select v-model="roleIds"  style="width:420px;" multiple placeholder="请选择" >
-              <el-option
-                v-for="(item, index) in roleList"
-                :key="item.name + index"
-                :label="item.name"
-                :value="item.id"/>
-            </el-select>
+          <el-form-item label="湿度" prop="humidity">
+            <el-input v-model="form.humidity" style="width:420px;" @input="change($event)"/>
           </el-form-item>
           <br><br>
           <el-form-item label="备注" prop="remark">
-            <el-input v-model="form.remark" style="width:420px;"/>
+            <el-input v-model="form.remark" style="width:420px;" @input="change($event)"/>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -89,8 +76,8 @@
 </template>
 
 <script>
-  import {readList,create,update,remove} from '@/api/user'
-  import {readList as getRoles } from '@/api/role'
+  import {readList,create,remove} from '@/api/corn/factor'
+  import {currentRouteArea} from '@/api/corn/area'
 
   import Pager from '@/api/Pager'
 
@@ -100,48 +87,34 @@
     data() {
       return {
         entity:{
-          username:null
+          temperature:null
         },
-
-        columns: [{label: '中文名', prop: 'cnname'},
-          {label: '登录名', prop: 'username'},
-          {label: '密码', prop: 'password'},
-          {
-            label: '角色', prop: 'roles', formatter: function (row, column, value) {
-              let roles = [];
-              value.forEach(function (role, index) {
-                roles.push(role.name)
-              })
-              return JSON.stringify(roles);
-            }
-          },
-          {label: '创建时间', prop: 'createTime'},
+        columns: [{label: '地区', prop: 'region'},
+          {label: '省|市|区', prop: 'province'},
+          {label: '温度', prop: 'temperature'},
+          {label: '湿度', prop: 'humidity'},
           {label: '备注', prop: 'remark'}
         ],
-
         dialog:false,
         isAdd:true,
         form:{
-          cnname:'',
-          username:'',
-          password:'',
-          roles:[],
-          remark:''
+          temperature:'',
+          humidity:'',
+          remark:'',
         },
-        roleIds:[],
-        roleList:[],
+        area:{
+          region: '',
+          province:''
+        },
 
         rules:{
-          username: [
-            { required: true, message: '请输入用户名', trigger: 'blur' },
-            { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
-          ]
         }
       }
     },
     mounted() {
+      this.area = currentRouteArea(this.$route);
       this.init();
-      this.loadRoleList();
+      console.log("this.area",this.area)
     },
     methods: {
       toQuery(){
@@ -149,7 +122,7 @@
       },
       init() {
         this.loading = true
-        this.params = {page: this.page, size: this.size, sort: 'createTime','username':this.entity.username}
+        this.params = {page: this.page, size: this.size, sort: 'createTime','temperature':this.entity.temperature, region:this.area.region,province:this.area.province }
         readList(this.params).then(response => {
           let data = response.data.data;
           this.total = data.totalElements
@@ -165,34 +138,20 @@
         for(let key in this.form){
           this.form[key]  = '';
         }
-        this.form.roles = [];
-        this.roleIds = [];
+        debugger
+        this.form.region = this.area.region
+        this.form.province = this.area.province
       },
       doSubmit() {
         this.$refs['form'].validate((valid) => {
           if (valid) {
             this.loading = true
-            this.form.roles = []
-            const _this = this
-            this.roleIds.forEach(function (data, index) {
-              const role = {id: data}
-              _this.form.roles.push(role)
-            })
             if (this.isAdd) {
               this.doAdd()
             } else this.doEdit()
           } else {
             return false
           }
-        })
-      },
-      loadRoleList(){
-        console.log( this.roleList )
-        this.params = {page: 0, size: 20}
-        getRoles(this.params).then(response => {
-          let data = response.data.data;
-          this.roleList = data.content
-          console.log( this.roleList )
         })
       },
       add(){
@@ -202,10 +161,6 @@
       edit(row){
         this.isAdd = false
         this.form = Object.assign({},row);
-        const _this = this
-        this.form.roles.forEach(function (role, index) {
-          _this.roleIds.push(role.id)
-        })
         this.dialog = true
       },
       doDelete(id){
@@ -221,7 +176,10 @@
         })
       },
       doAdd(){
-        create(this.form).then(response => {
+        this.form.region = this.area.region
+        this.form.province = this.area.province
+        let data = Object.assign({},this.form)
+        create(data).then(response => {
           this.$notify({
             title: '添加成功',
             type: 'success',
@@ -230,10 +188,14 @@
           this.loading = true
           this.toQuery();
           this.resetForm();
+          console.log('form::::',this.form)
         })
       },
       doEdit(){
-        update(this.form).then(response => {
+        this.form.region = this.area.region
+        this.form.province = this.area.province
+        let data = Object.assign({},this.form)
+        create(data).then(response => {
           this.$notify({
             title: '修改成功',
             type: 'success',
@@ -244,6 +206,9 @@
           this.resetForm();
         })
       },
+      change(e){
+        this.$forceUpdate()
+      }
     }
   }
 </script>

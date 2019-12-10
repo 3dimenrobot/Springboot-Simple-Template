@@ -33,7 +33,7 @@ router.beforeEach(async(to, from, next) => {
           // get user info
           // 获取权限信息
           store.dispatch('user/getInfo').then(res => {
-            next()
+            next({ ...to, replace: true })
           })
         } catch (error) {
           // remove token and go to login page to re-login

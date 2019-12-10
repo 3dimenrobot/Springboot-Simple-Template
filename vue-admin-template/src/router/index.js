@@ -161,7 +161,7 @@ export const constantRoutes = [
   },
 
   // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
+  // { path: '*', redirect: '/404', hidden: true }
 ]
 
 const createRouter = () => new Router({
@@ -222,6 +222,7 @@ export function createMenus(data) {
   loopChildren(trees)
   console.log('trees',trees)
   router.options.routes = trees.concat(constantRoutes);
+  router.options.routes.push({ path: '*', redirect: '/404', hidden: true })
   router.addRoutes(trees) // 动态添加可访问路由表
 }
 

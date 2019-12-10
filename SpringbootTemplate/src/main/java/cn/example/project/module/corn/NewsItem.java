@@ -20,6 +20,9 @@ public class NewsItem extends RegionEntity {
     private String text;
 
 
+    @ApiModelProperty(value = "备注", example = "备注")
+    private String remark;
+
     public Integer getId() {
         return id;
     }
@@ -34,5 +37,13 @@ public class NewsItem extends RegionEntity {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }
